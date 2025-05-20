@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Результаты ЕГЭ</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f3f3f3;
+      line-height: 1.5;
+    }
+    
+    .official-header {
+      background-color: #fff;
+      padding: 15px 0;
+      border-bottom: 1px solid #e0e0e0;
+      text-align: center;
+    }
+    
+    .logo-text {
+      font-size: 12px;
+    }
+    
+    .logo-title {
+      font-weight: bold;
+      font-size: 16px;
+    }
+    
+    .header-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      margin-top: 10px;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    
+    input[type="text"], select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 20px;
+      background-color: #005bb5;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    
+    button:hover {
+      background-color: #004a94;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 20px;
+      display: none;
+    }
+    
+    .results {
+      display: none;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    
+    th {
+      background-color: #f2f2f2;
+    }
+    
+    .fail {
+      color: red;
+      font-weight: bold;
+    }
+    
+    .footer {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #777;
+      text-align: center;
+    }
+    
+    .captcha {
+      display: flex;
+      margin: 15px 0;
+      gap: 10px;
+    }
+    
+    .captcha-code {
+      background: #eee;
+      padding: 8px 15px;
+      font-family: monospace;
+      font-size: 18px;
+      letter-spacing: 2px;
+    }
+    
+    .warning {
+      font-size: 13px;
+      color: #666;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="official-header">
+    <div class="logo-text">Официальный информационный портал</div>
+    <div class="logo-title">ЕДИНОГО ГОСУДАРСТВЕННОГО ЭКЗАМЕНА</div>
+    <div class="header-title">СЕРВИС ОЗНАКОМЛЕНИЯ С РЕЗУЛЬТАТАМИ ЕГЭ</div>
+  </div>
+
+  <div class="container" id="loginForm">
+    <label>Фамилия</label>
+    <input type="text" id="lastName" placeholder="Введите фамилию" required>
+    
+    <label>Имя</label>
+    <input type="text" id="firstName" placeholder="Введите имя" required>
+    
+    <label>Отчество</label>
+    <input type="text" id="middleName" placeholder="Введите отчество">
+    
+    <label>Номер документа (без серии)</label>
+    <input type="text" id="docNumber" placeholder="Введите номер" required>
+    
+    <label>Регион</label>
+    <select id="region" required>
+      <option value="">Выберите регион</option>
+      <option value="50" selected>Московская область</option>
+      <option value="77">Москва</option>
+      <option value="78">Санкт-Петербург</option>
+    </select>
+    
+    <div class="warning">
+      Публикация результатов принимается ОИВ субъекта РФ. Если вашего региона нет в списке, обратитесь в ОИВ вашего региона.
+    </div>
+    
+    <label>Введите код с картинки</label>
+    <div class="captcha">
+      <div class="captcha-code" id="captcha">4 3 1 7 5 8</div>
+      <button type="button" onclick="generateCaptcha()" style="width:auto;">Обновить</button>
+    </div>
+    
+    <input type="text" id="captchaInput" placeholder="Введите код" required>
+    
+    <button onclick="checkResults()">Проверить результаты</button>
+  </div>
+
+  <div class="container loading" id="loadingScreen">
+    <div>Проверка данных... Пожалуйста, подождите</div>
+  </div>
+<div class="container results" id="resultsScreen">
+    <h2>Результаты ЕГЭ 2025</h2>
+    <div>
+      <p><strong>ФИО:</strong> <span id="showName"></span></p>
+      <p><strong>Регион:</strong> Московская область, г. Сергиев Посад</p>
+    </div>
+    
+    <table>
+      <tr>
+        <th>Предмет</th>
+        <th>Дата</th>
+        <th>Баллы</th>
+        <th>Результат</th>
+      </tr>
+      <tr>
+        <td>Математика</td>
+        <td>27.05.2025</td>
+        <td class="fail">19</td>
+        <td class="fail">Не сдал</td>
+      </tr>
+      <tr>
+        <td>Русский язык</td>
+        <td>30.05.2025</td>
+        <td>-</td>
+        <td>Обработка</td>
+      </tr>
+      <tr>
+        <td>Обществознание</td>
+        <td>02.06.2025</td>
+        <td>-</td>
+        <td>Ожидается</td>
+      </tr>
+    </table>
+    
+    <button class="appeal-btn" onclick="alert('Апелляция невозможна - результаты еще не утверждены');">Подать апелляцию</button>
+    
+    <div class="footer">
+      © 2025 Федеральная служба по надзору в сфере образования
+    </div>
+  </div>
+
+  <script>
+    function generateCaptcha() {
+      const nums = [];
+      for(let i = 0; i < 6; i++) {
+        nums.push(Math.floor(Math.random() * 10));
+      }
+      document.getElementById('captcha').textContent = nums.join(' ');
+    }
+    
+    function checkResults() {
+      const lastName = document.getElementById('lastName').value.trim();
+      const firstName = document.getElementById('firstName').value.trim();
+      const docNumber = document.getElementById('docNumber').value.trim();
+      
+      if(!lastName⠺⠟⠵⠺⠵⠟⠺⠵⠞⠺⠵⠺⠞⠟!docNumber) {
+        alert('Заполните обязательные поля!');
+        return;
+      }
+      
+      // Показать загрузку
+      document.getElementById('loginForm').style.display = 'none';
+      document.getElementById('loadingScreen').style.display = 'block';
+      
+      // Через 4 секунды показать результаты
+      setTimeout(function() {
+        document.getElementById('loadingScreen').style.display = 'none';
+        document.getElementById('resultsScreen').style.display = 'block';
+        
+        // Показать введенное ФИО
+        const middleName = document.getElementById('middleName').value.trim();
+        document.getElementById('showName').textContent = lastName + ' ' + firstName + (middleName ? ' ' + middleName : '');
+        
+        // Эффект "шока"
+        document.body.style.background = '#ffebee';
+        setTimeout(() => document.body.style.background = '#f3f3f3', 300);
+      }, 2000);
+    }
+    
+    // Сгенерировать капчу при загрузке
+    window.onload = generateCaptcha;
+  </script>
+</body>
+</html>
